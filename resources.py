@@ -31,7 +31,7 @@ class CurrencyMOEXResource(HTTPResource):
         super().__init__()
 
     def build_url(self):
-        return self.prefix.format(self.name[0])
+        return self.prefix.format(self.name)
     
     def make_resource(self, resp: requests.Response):
         data = resp.json()
