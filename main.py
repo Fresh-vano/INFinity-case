@@ -3,19 +3,20 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Callback
 import resources
 
 def get_price(category, item):
+    rate = None
     if category == 'currency':
         if item == 'dollar':
-            rate = resources.CurrencyMOEXResource('USD').load_resource()
+            rate = resources.CurrencyMOEXResource(['USD']).load_resource()
             return f"{rate} RUB" if rate != 'Нет данных' else rate
         elif item == 'yuan':
-            rate = resources.CurrencyMOEXResource('CNY').load_resource()
+            rate = resources.CurrencyMOEXResource(['CNY']).load_resource()
             return f"{rate} RUB" if rate != 'Нет данных' else rate
     elif category == 'metals':
         if item == 'steel':
             rate = resources.MetalsLMEResource(['Ferrous', 'LME-Steel-CFR-India-Platts']).load_resource()
-        elif item == 'cartIron':
+        elif item == 'castIron':
             rate = resources.MetalsLMEResource(['Non-ferrous', 'LME-Aluminium']).load_resource()
-        return f"{rate} USD/ton" if rate != None else rate
+        return f"{rate} USD/ton" if rate != None else 'Нет данных'
     else:
         return 'Нет данных'
 
