@@ -1,37 +1,21 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
-import requests
-import apimoex
-import pandas as pd
-
-def get_currency_rate(currency_code):
-    url = f"https://iss.moex.com/iss/statistics/engines/futures/markets/indicativerates/securities/{currency_code}/RUB.json"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        # Получаем последнюю доступную информацию о курсе
-        last_rate_data = data['securities.current']['data'][0]
-        # Извлекаем курс из данных
-        rate = last_rate_data[3]  # rate находится на 4-й позиции в данных
-        return rate
-    else:
-        return 'Нет данных'
+import resources
 
 def get_price(category, item):
     if category == 'currency':
         if item == 'dollar':
-            rate = get_currency_rate('USD')
+            rate = resources.CurrencyMOEXResource('USD').load_resource()
             return f"{rate} RUB" if rate != 'Нет данных' else rate
         elif item == 'yuan':
-            rate = get_currency_rate('CNY')
+            rate = resources.CurrencyMOEXResource('CNY').load_resource()
             return f"{rate} RUB" if rate != 'Нет данных' else rate
     elif category == 'metals':
-        # Заглушка для металлов, добавьте реальную логику здесь, если необходимо
-        prices = {
-            'steel': '500 USD/ton',
-            'castIron': '300 USD/ton'
-        }
-        return prices.get(item, 'Нет данных')
+        if item == 'steel':
+            rate = resources.MetalsLMEResource(['Ferrous', 'LME-Steel-CFR-India-Platts']).load_resource()
+        elif item == 'cartIron':
+            rate = resources.MetalsLMEResource(['Non-ferrous', 'LME-Aluminium']).load_resource()
+        return f"{rate} USD/ton" if rate != None else rate
     else:
         return 'Нет данных'
 
