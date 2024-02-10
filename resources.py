@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 
+
 class HTTPResource:
     def build_url(self):
         raise RuntimeError("not implemented method")
@@ -14,7 +15,7 @@ class HTTPResource:
     def load_resource(self):
         url = self.build_url()
         headers = {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0",
         }
         resp = requests.get(url, headers=headers)
         print(resp.status_code)
@@ -52,4 +53,18 @@ class MetalsLMEResource(HTTPResource):
     def make_resource(self, resp: requests.Response):
         soup = BeautifulSoup(resp.text, 'html.parser')
         data = soup.find(class_='hero-metal-data__number')
+        return data
+    
+class MetalsRuInvestingResource(HTTPResource):
+    def __init__(self, name: list[str]) -> None:
+        self.prefix = 'https://ru.investing.com/commodities/{}-contracts'
+        self.name = name
+        super().__init__()
+
+    def build_url(self):
+        return self.prefix.format(self.name[0])
+    
+    def make_resource(self, resp: requests.Response):
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        data = soup.find(id='last_last')
         return data.text

@@ -13,9 +13,9 @@ def get_price(category, item):
             return f"{rate} RUB" if rate != 'Нет данных' else rate
     elif category == 'metals':
         if item == 'steel':
-            rate = resources.MetalsLMEResource(['Ferrous', 'LME-Steel-CFR-India-Platts']).load_resource()
+            rate = resources.MetalsRuInvestingResource(['us-steel-coil']).load_resource()
         elif item == 'castIron':
-            rate = resources.MetalsLMEResource(['Non-ferrous', 'LME-Aluminium']).load_resource()
+            rate = resources.MetalsRuInvestingResource(['iron-ore-62-cfr']).load_resource()
         return f"{rate} USD/ton" if rate != None else 'Нет данных'
     else:
         return 'Нет данных'
