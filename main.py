@@ -98,7 +98,6 @@ def main():
     dispatcher.add_handler(CallbackQueryHandler(button, pattern='^(currency|metals)$'))
     dispatcher.add_handler(CallbackQueryHandler(show_price, pattern='^(currency_|metals_)'))
     dispatcher.add_handler(CallbackQueryHandler(restart, pattern='^restart$'))
-    #dispatcher.add_handler(CallbackQueryHandler(button_message, pattern=''))
     updater.start_polling()
     updater.idle()
 
