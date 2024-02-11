@@ -1,0 +1,22 @@
+[
+    {
+        "name": "cynrub",
+        "resource": "moex-currency",
+        "keys":[ "CYN" ]
+    },
+    {
+        "name": "dollarrub",
+        "resource": "moex-currency",
+        "keys": [ "USD" ]
+    },
+    {
+        "name": "steel",
+        "resource": "ruinvest-metals",
+        "keys": [ "us-steel-coil" ]
+    },
+    {
+        "name": "iron",
+        "resource": "ruinvest-metals",
+        "keys": [ "iron-ore-62-cfr" ]
+    }
+]
