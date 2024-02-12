@@ -1,5 +1,6 @@
 <p align="center">
-<img src="img/logo.png" alt="Логотип проекта" width="150" style="display: inline-block; vertical-align: middle; margin-right: 10px;"/> <br/>
+
+<img src=![logo](https://github.com/Fresh-vano/INFinity-case/assets/74467916/9bf1bc71-105e-440d-afd7-c4859c1ff32c) alt="Логотип проекта" width="150" style="display: inline-block; vertical-align: middle; margin-right: 10px;"/> <br/>
 <H2 align="center">Кейс команды №7 INFinity</H2>
 </p>
 
@@ -37,7 +38,7 @@ pip install -r requirements.txt
 
 Для запуска бота в docker контейнере требуется выполнить следующую команду:
 ```sh
-
+docker-compose up
 ```
 
 ### API
@@ -48,9 +49,9 @@ pip install -r requirements.txt
 
 Запуск производится запуском файла `main.py`
 
-Для запуска api в docker контейнере требуется выполнить следующую команду:
+Для запуска api в docker контейнере требуется выполнить следующую команду в папке с api:
 ```sh
-
+docker-compose up
 ```
 
 Все права защищены. &copy; INFinity.
