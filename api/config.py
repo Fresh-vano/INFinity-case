@@ -3,7 +3,7 @@ from resources import *
 import json
 import platform
 
-CONFIG_PATH = './config.json'
+CONFIG_PATH = "E:\\INFinity-case\\api\\config.json"
 
 def init_repo():
     global repo
