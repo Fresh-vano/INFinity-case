@@ -1,6 +1,6 @@
 <p align="center">
 
-<img src=![logo](https://github.com/Fresh-vano/INFinity-case/assets/74467916/9bf1bc71-105e-440d-afd7-c4859c1ff32c) alt="Логотип проекта" width="150" style="display: inline-block; vertical-align: middle; margin-right: 10px;"/> <br/>
+<img src="img/logo.jpg" alt="Логотип проекта" width="150" style="display: inline-block; vertical-align: middle; margin-right: 10px;"/> <br/>
 <H2 align="center">Кейс команды №7 INFinity</H2>
 </p>
 
