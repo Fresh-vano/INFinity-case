@@ -1,11 +1,11 @@
 [
     {
-        "name": "cynrub",
+        "name": "cny",
         "resource": "moex-currency",
-        "keys":[ "CYN" ]
+        "keys":[ "CNY" ]
     },
     {
-        "name": "dollarrub",
+        "name": "usd",
         "resource": "moex-currency",
         "keys": [ "USD" ]
     },

@@ -38,8 +38,8 @@ class Repository:
         resource = self.resources[item.resource]
         val = resource.load_resource(item.keys)
         self.cache[name] = val
-        return val
+        return val 
     
     def get_items_list(self):
-        return self.items.keys()
+        return list(self.items.keys())
         

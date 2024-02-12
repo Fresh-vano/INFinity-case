@@ -1,29 +1,77 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
-import resources
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
+import requests
+import os
 from datetime import datetime
 
-def get_price(category, item):
-    rate = None
-    if category == 'currency':
-        if item == 'dollar':
-            rate = resources.CurrencyMOEXResource(['USD']).load_resource()
-            return f"{rate} RUB" if rate != 'Нет данных' else rate
-        elif item == 'yuan':
-            rate = resources.CurrencyMOEXResource(['CNY']).load_resource()
-            return f"{rate} RUB" if rate != 'Нет данных' else rate
-    elif category == 'metals':
-        if item == 'steel':
-            rate = resources.MetalsRuInvestingResource(['us-steel-coil']).load_resource()
-        elif item == 'castIron':
-            rate = resources.MetalsRuInvestingResource(['iron-ore-62-cfr']).load_resource()
-        return f"{rate} USD/ton" if rate != None else 'Нет данных'
+item_list = []
+
+def get_price(item):
+    url = f'http://127.0.0.1:5000/api/{item}'
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
     else:
-        return 'Нет данных'
+        return 'Ошибка получения данных'
+
+def get_items():
+    url = f'http://127.0.0.1:5000/api/items'
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return []
+
+# Функция для получения списка валют и отправки их в чат
+def get_currency_list(update: Update, context: CallbackContext) -> None:
+    currency_list = get_items()
+    if currency_list:
+        message_text = f"Доступные виды валют: {', '.join(currency_list)}"
+    else:
+        message_text = "Извините, список валют временно недоступен."
+    reply_markup = InlineKeyboardMarkup([
+        [InlineKeyboardButton("Выбрать другой курс", callback_data='restart')]
+    ])
+    context.bot.send_message(chat_id=update.message.chat_id, text=message_text, reply_markup=reply_markup)
+
+# Обработчик для команды /get_rate
+def get_rate(update: Update, context: CallbackContext) -> None:
+    # Проверяем, что это первое сообщение после команды
+    if context.args:
+        currency_code = context.args[0].lower()
+    elif update.message.text:
+        currency_code = update.message.text.lower()
+    else:
+        update.message.reply_text('Пожалуйста, введите код валюты после команды, например, USD')
+        return
+
+    # Проверяем, что введенный код валюты находится в списке доступных
+    if currency_code not in item_list:
+        update.message.reply_text(f"Введите доступную валюту из списка: {', '.join(item_list)}")
+        return
+
+    # Получаем цену и текущую дату и время
+    price = get_price(currency_code)
+    current_datetime = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
+
+    if price != 'Ошибка получения данных':
+        message_text = f"На момент {current_datetime} курс {currency_code} к рублю составляет:\n1 {currency_code} = {price} рублей"
+    else:
+        message_text = "Извините, данные временно недоступны."
+    reply_markup = InlineKeyboardMarkup([
+        [InlineKeyboardButton("Выбрать другой курс", callback_data='restart')]
+    ])
+    context.bot.send_message(chat_id=update.message.chat_id, text=message_text, reply_markup=reply_markup)
+
+# Обработчик для введенных сообщений (не команд)
+def handle_messages(update: Update, context: CallbackContext) -> None:
+    # Проверяем, что сообщение не является командой
+    if not update.message.text.startswith('/'):
+        get_rate(update, context)
 
 # Функция обработки команды старт
 def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Привет, я ТаМарКа!\nИ я хочу помочь вам с вашим вопросом.')
+    update.message.reply_text('Привет, я ТаМарКа!\nИ я хочу помочь вам с вашим вопросом. Выберите раздел или введите требуемую валюту.')
     button_message(update=update, context=context)
 
 def button_message(update: Update, context: CallbackContext) -> None:
@@ -43,13 +91,13 @@ def button(update: Update, context: CallbackContext) -> None:
 
     if category == 'currency':
         keyboard = [
-            [InlineKeyboardButton("Курс юаня", callback_data='currency_yuan')],
-            [InlineKeyboardButton("Курс доллара", callback_data='currency_dollar')]
+            [InlineKeyboardButton("Курс юаня", callback_data='currency_cnyrub')],
+            [InlineKeyboardButton("Курс доллара", callback_data='currency_dollarrub')]
         ]
     elif category == 'metals':
         keyboard = [
             [InlineKeyboardButton("Курс стали", callback_data='metals_steel')],
-            [InlineKeyboardButton("Курс чугуна", callback_data='metals_castIron')]
+            [InlineKeyboardButton("Курс чугуна", callback_data='metals_iron')]
         ]
 
     # Добавляем кнопку для повторного выбора
@@ -61,14 +109,14 @@ def button(update: Update, context: CallbackContext) -> None:
 def show_price(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
-    category, item = query.data.split('_')
-    price = get_price(category, item)
+    _, item = query.data.split("_")
+    price = get_price(item)
 
     # Получаем текущую дату и время
     current_datetime = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
 
     if price != 'Нет данных':
-        message_text = f"На момент {current_datetime} курс {item} к рублю составляет:\n1 {item} = {price} рублей"
+        message_text = f"На момент {current_datetime} курс {item} к рублю составляет:\n1 {item} = {price} у.е."
     else:
         message_text = "Извините, данные временно недоступны."
 
@@ -88,9 +136,13 @@ def restart(update: Update, context: CallbackContext) -> None:
 
 # Основной блок
 def main():
-    # Вставьте ваш токен, полученный от BotFather, здесь
+    
+    #bot_token = os.getenv("BOT_TOKEN")
     TOKEN = '6449226644:AAEXsQkSGSjBs8tAlRYyDSgkO5C_8zdVcBo'
     
+    global item_list 
+    item_list = get_items()
+
     updater = Updater(TOKEN, use_context=True)
     
     dispatcher = updater.dispatcher
@@ -98,7 +150,9 @@ def main():
     dispatcher.add_handler(CallbackQueryHandler(button, pattern='^(currency|metals)$'))
     dispatcher.add_handler(CallbackQueryHandler(show_price, pattern='^(currency_|metals_)'))
     dispatcher.add_handler(CallbackQueryHandler(restart, pattern='^restart$'))
-    #dispatcher.add_handler(CallbackQueryHandler(button_message, pattern=''))
+    dispatcher.add_handler(CommandHandler('get_rate', get_rate, pass_args=True))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_messages))
+    dispatcher.add_handler(CommandHandler('currencies', get_currency_list))
     updater.start_polling()
     updater.idle()
 
