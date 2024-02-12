@@ -5,6 +5,10 @@ import platform
 
 CONFIG_PATH = "E:\\INFinity-case\\api\\config.json"
 
+"""
+Инициализация репозитория
+Регистрация ресурсов и инструментов
+"""
 def init_repo():
     global repo
     repo = Repository()
@@ -15,15 +19,18 @@ def init_repo():
         for item in items:
             repo.add_item(Item(item["name"], item["resource"], item["keys"]))
 
-def handle_sighub():
+def handle_sigterm():
     init_repo()
 
 # Инициализация репозитория
 repo = Repository()
 init_repo()
 
+"""
+В случае работы в GNU Linux с помощью сигнала SIGTERM перечитывать конфигурационные данные
+"""
 if platform.system() == 'Linux':
     import signal
 
     # Обновить конфигурацию при сигнале SIGHUB к процессу приложения
-    signal.signal(signalnum=signal.SIGTERM, handler=handle_sighub)
+    signal.signal(signalnum=signal.SIGTERM, handler=handle_sigterm)
