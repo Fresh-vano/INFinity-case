@@ -1,0 +1,10 @@
+[
+    {
+        "category": "currency",
+        "resource": "moex-currency"
+    },
+    {
+        "category": "metals",
+        "resource": "ruinvest-metals"
+    }
+]
